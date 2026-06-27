@@ -39,18 +39,15 @@
   const w=window.innerWidth, h=window.innerHeight, g=0.45, shards=[];
   let start=false, hold=false, tx=w/2, ty=h*0.42, lx=tx, ly=ty, ox=0, oy=0;
 
-  // 🔊 効果音システム
   function playSound(type) {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (type === 'crash') {
-      // ガッシャン破壊音
       const bufSize = ctx.sampleRate * 0.4, buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate), data = buffer.getChannelData(0);
       for (let i = 0; i < bufSize; i++) { data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.08)); }
       const noise = ctx.createBufferSource(); noise.buffer = buffer;
       const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(1200, ctx.currentTime);
       noise.connect(filter); filter.connect(ctx.destination); noise.start();
     } else if (type === 'hit') {
-      // ⚡ カキーン！打撃音
       const osc = ctx.createOscillator(), gain = ctx.createGain();
       osc.type = 'triangle'; osc.frequency.setValueAtTime(600, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.15);
@@ -80,13 +77,14 @@
     objs.bar.el.classList.add('act'); objs.bar.el.innerText="音量注意！ロゴを弾いてすべてを砕け！";
   }, 200);
 
-  function up(e) { const t=e.touches&&e.touches.length>0?e.touches:e; tx=t.clientX; ty=t.clientY; }
+  // ⚡ iPadのマルチタッチデータから1つ目の指の座標を確実に狙い撃つ修正
+  function up(e) { const t=e.touches&&e.touches.length>0?e.touches[0]:e; tx=t.clientX; ty=t.clientY; }
   
   function startHold(clientX, clientY, event) {
     const d = Math.hypot(clientX-(objs.bar.x+240), clientY-(objs.bar.y+23));
     if (d < 300) { 
       hold=true; ox = clientX - objs.bar.x; oy = clientY - objs.bar.y;
-      if(event.touches) { tx=event.touches.clientX; ty=event.touches.clientY; } else { tx=clientX; ty=clientY; } lx=tx; ly=ty; 
+      if(event.touches&&event.touches.length>0) { tx=event.touches[0].clientX; ty=event.touches[0].clientY; } else { tx=clientX; ty=clientY; } lx=tx; ly=ty; 
     }
   }
 
@@ -94,7 +92,7 @@
   window.addEventListener('mousemove', (e)=>{ if(hold) up(e); });
   window.addEventListener('mouseup', ()=>hold=false);
   
-  document.addEventListener('touchstart', (e)=>startHold(e.touches.clientX, e.touches.clientY, e), {passive:true});
+  document.addEventListener('touchstart', (e)=>{ if(e.touches&&e.touches.length>0) startHold(e.touches[0].clientX, e.touches[0].clientY, e); }, {passive:true});
   document.addEventListener('touchmove', (e)=>{ up(e); if(hold) e.preventDefault(); }, {passive:false});
   document.addEventListener('touchend', ()=>hold=false);
 
@@ -114,17 +112,15 @@
     }
     if(objs.logo.y>h-75){ objs.logo.y=h-75; objs.logo.vy*=-0.65; objs.logo.vx*=0.9; objs.logo.va*=0.9; }
     if(objs.logo.x<0||objs.logo.x>w-200){ objs.logo.vx*=-0.7; objs.logo.x=objs.logo.x<0?0:w-200; }
-    
-    // 💥 検索バーとロゴがぶつかったら「カキーン！」
     if(start && hit(objs.logo, objs.bar)){ 
-      playSound('hit'); // ⚡ 打撃音を再生
+      playSound('hit'); 
       objs.logo.vy=objs.bar.vy*1.5-Math.abs(objs.bar.va)-4; objs.logo.vx=objs.bar.vx*1.3+objs.bar.va*2+(Math.random()-0.5)*6; objs.logo.va=objs.logo.vx*0.6+objs.bar.va; 
     }
     
     for(let k in objs){
       const t=objs[k]; if(k!=='logo' && k!=='bar' && t.st && hit(objs.logo, t)){
         t.st=false; t.el.style.display='none';
-        playSound('crash'); // ⚡ 破壊音を再生
+        playSound('crash'); 
         for(let i=0; i<4; i++){
           const sEl=document.createElement('div'); sEl.className='s'; sEl.innerText=(t.txt||"💥").substring(i,i+2)||"💥"; document.body.appendChild(sEl);
           shards.push({ el:sEl, x:t.x+(i*35), y:t.y, vx:objs.logo.vx*0.5+(Math.random()-0.5)*12, vy:objs.logo.vy*0.4-Math.random()*5-3, a:Math.random()*360, va:(Math.random()-0.5)*30 });
