@@ -15,7 +15,7 @@
     left: 0; top: 0; will-change: transform;
   }
   
-  /* 🌐 リアルなブラウザタブバーの再現 */
+  /* ブラウザタブバー */
   #tab-container {
     position: absolute; top: 0; left: 0; width: 100%; height: 40px;
     background-color: #dee2e6; display: flex; align-items: flex-end; padding-left: 10px; z-index: 1;
@@ -23,16 +23,16 @@
   .tab-item {
     background: #e9ecef; border: 1px solid #c1c9d2; border-bottom: none;
     border-radius: 8px 8px 0 0; padding: 8px 20px; font-size: 12px; color: #495057;
-    margin-right: 4px; height: 28px; display: flex; align-items: center; transition: background 0.2s;
+    margin-right: 4px; height: 28px; display: flex; align-items: center;
   }
   
-  /* 🔍 Google公式フォント・ロゴデザインの再現 */
+  /* Googleロゴ */
   #logo {
     font-size: 72px; font-weight: 500; font-family: 'Product Sans', Arial, sans-serif;
     letter-spacing: -2.5px; z-index: 10;
   }
   
-  /* ⌨️ リアルなGoogle検索バーの再現 */
+  /* 完全無敵の最強検索バー */
   #search-bar-container {
     width: 480px; height: 46px; background: #ffffff;
     border: 1px solid #dfe1e5; border-radius: 24px;
@@ -40,12 +40,9 @@
     padding: 0 16px; z-index: 20; box-shadow: none;
   }
   #search-bar-container.game-active {
-    border: 2px solid #4285F4;
-    box-shadow: 0 4px 10px rgba(66, 133, 244, 0.2);
-  }
-  #search-bar-container.muteki {
-    border: 2px solid #FBBC05 !important;
-    box-shadow: 0 4px 10px rgba(251, 188, 5, 0.2);
+    border: 2px solid #34A853; /* 完全無敵の安心グリーン */
+    box-shadow: 0 4px 10px rgba(52, 168, 83, 0.3);
+    cursor: move;
   }
   .search-text {
     color: #202124; font-size: 16px; flex-grow: 1; text-align: left; padding-left: 10px;
@@ -53,14 +50,14 @@
   .search-icon { color: #9aa0a6; font-size: 16px; display: flex; align-items: center; }
   .right-icons { display: flex; gap: 14px; align-items: center; font-size: 18px; }
 
-  /* 🖱️ リアルなGoogle検索ボタンの再現 */
+  /* ターゲットになるGoogle検索ボタン */
   .google-btn {
     background-color: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px;
     color: #3c4043; font-size: 14px; padding: 10px 16px; text-align: center;
-    z-index: 15; cursor: default;
+    z-index: 15;
   }
 
-  /* 💥 破壊時・ゲームオーバー時のリアルなエフェクト */
+  /* 💥 破壊されたパーツの赤熱化エフェクト */
   .broken {
     border-color: #dc3545 !important; background: #dc3545 !important; color: #ffffff !important;
     font-weight: bold; opacity: 0.9; box-shadow: 0 0 20px rgba(220, 53, 69, 0.6);
@@ -70,19 +67,19 @@
 </head>
 <body>
 
-<!-- 本物のChrome風タブバー -->
+<!-- タブバー -->
 <div id="tab-container">
   <div id="tab1" class="game-element tab-item">📄 新しいタブ</div>
   <div id="tab2" class="game-element tab-item">🐱 GitHub (pudrick)</div>
   <div id="tab3" class="game-element tab-item">📺 YouTube</div>
 </div>
 
-<!-- 本物そっくりの配色Googleロゴ -->
+<!-- Googleロゴ（破壊の弾丸） -->
 <div id="logo" class="game-element">
   <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span>
 </div>
 
-<!-- アイコンを埋め込んだリアルな検索バー -->
+<!-- 検索バー -->
 <div id="search-bar-container" class="game-element">
   <div class="search-icon">🔍</div>
   <div id="bar-text" class="search-text">google fall</div>
@@ -92,7 +89,7 @@
   </div>
 </div>
 
-<!-- ロゴの下にある公式風のボタン2つ -->
+<!-- ターゲットボタン -->
 <div id="btn1" class="game-element google-btn">Google 検索</div>
 <div id="btn2" class="game-element google-btn">I'm Feeling Lucky</div>
 
@@ -100,7 +97,7 @@
   const w = window.innerWidth;
   const h = window.innerHeight;
 
-  // リアルUIパーツを物理世界と同期するための構造化データ
+  // すべての物理パーツのデータ管理
   const objects = {
     tab1: { el: document.getElementById('tab1'), x: 10, y: 12, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 100, height: 28 },
     tab2: { el: document.getElementById('tab2'), x: 115, y: 12, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 130, height: 28 },
@@ -111,144 +108,134 @@
     btn2: { el: document.getElementById('btn2'), x: w / 2 + 10, y: h * 0.53, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 140, height: 36 }
   };
 
-  // 初期配置を設定
+  // 初期配置
   for (let key in objects) {
     const obj = objects[key];
     obj.el.style.transform = `translate(${obj.x}px, ${obj.y}px) rotate(${obj.angle}deg)`;
   }
 
   let gameStarted = false;
-  let isGameOver = false;
-  let hasFlipped = false;
-  const gravity = 0.45; // 少し重力をリアルに強化
+  const gravity = 0.4;
 
-  // ⏰ 0.2秒後に本物のGoogle画面が一気に崩壊！
+  // ⏰ 0.2秒後にゲームスタート
   setTimeout(() => {
     gameStarted = true;
-    objects.bar.isStatic = false;
-    
-    // ロゴの下のボタンも一緒に落下させる
-    objects.btn1.isStatic = false;
-    objects.btn2.isStatic = false;
-    objects.btn1.vy = 2; objects.btn2.vy = 1.5;
+    objects.bar.isStatic = false; // 検索バーを指に追従させる
     
     const barEl = objects.bar.el;
     barEl.classList.add('game-active');
-    barEl.classList.add('muteki'); // 最初の1打は無敵
-    document.getElementById('bar-text').innerText = "上に弾け！弾いた後は即死モード！";
+    document.getElementById('bar-text').innerText = "完全無敵！ロゴを弾いてすべてを破壊せよ！";
   }, 200);
 
   let touchX = w / 2;
   let touchY = h * 0.42;
 
   function updateTouch(e) {
-    const t = e.touches ? e.touches[0] : e;
+    const t = e.touches ? e.touches : e;
     touchX = t.clientX;
     touchY = t.clientY;
   }
   window.addEventListener('mousemove', updateTouch);
   window.addEventListener('touchmove', updateTouch, { passive: false });
 
-  // メイン物理シミュレーションループ
+  // 物理＆描画メインループ
   function gameLoop() {
-    if (gameStarted && !isGameOver) {
-      // 検索バーが指の中心に滑らかに、かつ超高速に追従する計算
+    if (gameStarted) {
+      // 検索バーを指の座標へ超高速追従（絶対に壊れない）
       const targetX = touchX - objects.bar.width / 2;
       const targetY = touchY - objects.bar.height / 2;
       objects.bar.vx = (targetX - objects.bar.x) * 0.35;
       objects.bar.vy = (targetY - objects.bar.y) * 0.35;
       objects.bar.x += objects.bar.vx;
       objects.bar.y += objects.bar.vy;
-    }
 
-    if (gameStarted) {
-      // ロゴのリアルな自由落下運動
+      // ロゴの物理運動
       objects.logo.vy += gravity;
       objects.logo.x += objects.logo.vx;
       objects.logo.y += objects.logo.vy;
       objects.logo.angle += objects.logo.va;
 
-      // 崩壊したすべてのオブジェクトの物理運動
-      ['tab1', 'tab2', 'tab3', 'bar', 'btn1', 'btn2'].forEach(key => {
+      // 破壊されたすべてのオブジェクトの物理運動（地面に落ちる処理）
+      for (let key in objects) {
         const obj = objects[key];
-        if (!obj.isStatic && (key !== 'bar' || isGameOver)) {
+        if (key !== 'logo' && key !== 'bar' && !obj.isStatic) {
           obj.vy += gravity;
           obj.x += obj.vx;
           obj.y += obj.vy;
           obj.angle += obj.va;
+
+          // 落ちたパーツも床（画面の底）でバウンドする！
+          if (obj.y > h - obj.height) {
+            obj.y = h - obj.height;
+            obj.vy = -obj.vy * 0.4; // 適度に跳ね返る
+            obj.vx *= 0.8;
+            obj.va *= 0.8;
+          }
         }
-      });
+      }
     }
 
-    // 壁と床の衝突判定（画面内にバウンド）
+    // ロゴが床（画面の底）に当たった時のバウンド処理
     if (objects.logo.y > h - objects.logo.height) {
       objects.logo.y = h - objects.logo.height;
-      objects.logo.vy = -objects.logo.vy * 0.65; // 地面での跳ね返り
-      objects.logo.vx *= 0.85;
-      objects.logo.va *= 0.85;
+      objects.logo.vy = -objects.logo.vy * 0.7; // 元気に跳ね返る
+      objects.logo.vx *= 0.9;
+      objects.logo.va *= 0.9;
     }
+    // 左右の壁での跳ね返り
     if (objects.logo.x < 0 || objects.logo.x > w - objects.logo.width) {
       objects.logo.vx = -objects.logo.vx * 0.7;
       objects.logo.x = objects.logo.x < 0 ? 0 : w - objects.logo.width;
     }
 
-    // 💥 バッティング判定
-    if (!isGameOver && gameStarted) {
-      if (checkCollision(objects.logo, objects.bar)) {
-        // 指を上へシュバッと弾いたとき
-        if (objects.bar.vy < -1.5) {
-          objects.logo.vy = objects.bar.vy * 1.6 - 6; 
-          objects.logo.vx = objects.bar.vx * 1.3 + (Math.random() - 0.5) * 6;
-          objects.logo.va = objects.logo.vx * 0.6;
-          
-          if (!hasFlipped) {
-            hasFlipped = true;
-            objects.bar.el.classList.remove('muteki');
-            document.getElementById('bar-text').innerText = "🚨 次当たったら即死！逃げろ！";
-          }
-        } else {
-          // 上に弾けず、ロゴがバーに乗っかってしまったとき
-          if (hasFlipped) {
-            // 無敵解除後なら即死大破ゲームオーバー
-            isGameOver = true;
-            objects.bar.isStatic = false;
-            objects.bar.el.classList.add('broken');
-            document.getElementById('bar-text').innerText = "💀 検索バー大破（ゲームオーバー）";
-            objects.bar.vy = 3;
-            objects.bar.vx = (Math.random() - 0.5) * 8;
-            objects.bar.va = 6;
-          } else {
-            // 初回無敵中なら、優しく跳ね返るだけ
-            objects.logo.y = objects.bar.y - objects.logo.height - 2;
-            objects.logo.vy = -Math.abs(objects.logo.vy) * 0.5 - 2;
-          }
-        }
+    // 💥 検索バー vs ロゴのバッティング判定（完全無敵）
+    if (gameStarted && checkCollision(objects.logo, objects.bar)) {
+      // 下から上にスイングするか、横から強くぶつかった時
+      if (Math.abs(objects.bar.vy) > 0.5 || Math.abs(objects.bar.vx) > 0.5) {
+        objects.logo.vy = objects.bar.vy * 1.5 - 4; 
+        objects.logo.vx = objects.bar.vx * 1.3 + (Math.random() - 0.5) * 5;
+        objects.logo.va = objects.logo.vx * 0.6;
+      } else {
+        // 静止して触れたときは、ロゴがバーの上でポンと軽く弾むだけ
+        objects.logo.y = objects.bar.y - objects.logo.height - 1;
+        objects.logo.vy = -Math.abs(objects.logo.vy) * 0.5 - 2;
       }
     }
 
-    // 💥 タブバーの即死撃破処理
-    ['tab1', 'tab2', 'tab3'].forEach(key => {
-      const tab = objects[key];
-      if (tab.isStatic && checkCollision(objects.logo, tab)) {
-        tab.isStatic = false;
-        tab.el.classList.add('broken');
-        tab.el.innerText = "💥 撃破";
-        tab.vy = objects.logo.vy * 0.4 + 2;
-        tab.vx = objects.logo.vx * 0.4 + (Math.random() - 0.5) * 4;
-        tab.va = (Math.random() - 0.5) * 12;
-        objects.logo.vy = -objects.logo.vy * 0.6; // 叩いたロゴもバウンド
+    // 💥 ターゲットパーツ（タブやボタン）の破壊判定
+    ['tab1', 'tab2', 'tab3', 'btn1', 'btn2'].forEach(key => {
+      const target = objects[key];
+      if (target.isStatic && checkCollision(objects.logo, target)) {
+        target.isStatic = false; // 物理落ちスタート
+        target.el.classList.add('broken');
+        
+        if(key.startsWith('tab')) {
+          target.el.innerText = "💥 撃破";
+        } else if(key === 'btn1') {
+          target.el.innerText = "💥 崩壊";
+        } else {
+          target.el.innerText = "💥 Lucky!!";
+        }
+
+        // ロゴのパワーをパーツに伝える
+        target.vy = objects.logo.vy * 0.4 + 2;
+        target.vx = objects.logo.vx * 0.4 + (Math.random() - 0.5) * 4;
+        target.va = (Math.random() - 0.5) * 12;
+
+        // ぶつかったロゴもリアルに跳ね返る
+        objects.logo.vy = -objects.logo.vy * 0.6;
       }
     });
 
-    // 🚀 天井を突き抜けたら、リスポーン（上から再落下）
-    if (objects.logo.y < -250) {
+    // 🚀 天井のかなたに吹き飛びすぎたら、ランダムに上から再落下
+    if (objects.logo.y < -300) {
       objects.logo.y = -80;
       objects.logo.x = Math.random() * (w - objects.logo.width);
       objects.logo.vy = 5;
-      objects.logo.vx = (Math.random() - 0.5) * 5;
+      objects.logo.vx = (Math.random() - 0.5) * 4;
     }
 
-    // すべての物理座標を画面（CSS3）に高速描画
+    // すべての物理座標を画面（CSS）に一斉反映
     for (let key in objects) {
       const obj = objects[key];
       obj.el.style.transform = `translate(${obj.x}px, ${obj.y}px) rotate(${obj.angle}deg)`;
@@ -257,7 +244,7 @@
     requestAnimationFrame(gameLoop);
   }
 
-  // 高速矩形コリジョン
+  // 当たり判定関数
   function checkCollision(obj1, obj2) {
     return (
       obj1.x < obj2.x + obj2.width &&
