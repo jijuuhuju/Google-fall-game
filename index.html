@@ -1,256 +1,94 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Google</title>
 <style>
-  body {
-    margin: 0; padding: 0; overflow: hidden;
-    background-color: #ffffff; font-family: 'SF Pro Display', Roboto, Arial, sans-serif; user-select: none;
-    touch-action: none; /* スクロールを禁止 */
-  }
-  .game-element {
-    position: absolute; display: inline-block; box-sizing: border-box; white-space: nowrap;
-    left: 0; top: 0; will-change: transform;
-  }
-  
-  /* ブラウザタブバー */
-  #tab-container {
-    position: absolute; top: 0; left: 0; width: 100%; height: 40px;
-    background-color: #dee2e6; display: flex; align-items: flex-end; padding-left: 10px; z-index: 1;
-  }
-  .tab-item {
-    background: #e9ecef; border: 1px solid #c1c9d2; border-bottom: none;
-    border-radius: 8px 8px 0 0; padding: 8px 20px; font-size: 12px; color: #495057;
-    margin-right: 4px; height: 28px; display: flex; align-items: center;
-  }
-  
-  /* Googleロゴ */
-  #logo {
-    font-size: 72px; font-weight: 500; font-family: 'Product Sans', Arial, sans-serif;
-    letter-spacing: -2.5px; z-index: 10;
-  }
-  
-  /* 検索バー（パドル） */
-  #search-bar-container {
-    width: 480px; height: 46px; background: #ffffff;
-    border: 1px solid #dfe1e5; border-radius: 24px;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 16px; z-index: 20; box-shadow: none;
-  }
-  #search-bar-container.game-active {
-    border: 2px solid #34A853;
-    box-shadow: 0 4px 10px rgba(52, 168, 83, 0.3);
-    cursor: move;
-  }
-  .search-text {
-    color: #202124; font-size: 16px; flex-grow: 1; text-align: left; padding-left: 10px;
-  }
-  .search-icon { color: #9aa0a6; font-size: 16px; display: flex; align-items: center; }
-  .right-icons { display: flex; gap: 14px; align-items: center; font-size: 18px; }
-
-  /* Google検索ボタン */
-  .google-btn {
-    background-color: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px;
-    color: #3c4043; font-size: 14px; padding: 10px 16px; text-align: center;
-    z-index: 15;
-  }
-
-  /* 💥 破壊時エフェクト */
-  .broken {
-    border-color: #dc3545 !important; background: #dc3545 !important; color: #ffffff !important;
-    font-weight: bold; opacity: 0.9; box-shadow: 0 0 20px rgba(220, 53, 69, 0.6);
-  }
-  .broken * { color: #ffffff !important; }
+  body { margin:0; overflow:hidden; background:#fff; font-family:sans-serif; user-select:none; touch-action:none; }
+  .e { position:absolute; left:0; top:0; will-change:transform; box-sizing:border-box; white-space:nowrap; }
+  .t { background:#e9ecef; border:1px solid #c1c9d2; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 20px; font-size:12px; }
+  #logo { font-size:72px; font-weight:500; letter-spacing:-2px; z-index:10; }
+  #bar { width:480px; height:46px; background:#fff; border:1px solid #dfe1e5; border-radius:24px; text-align:center; line-height:42px; font-size:16px; z-index:20; }
+  #bar.act { border:2px solid #34A853; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+  .b { background:#f8f9fa; border:1px solid #f8f9fa; border-radius:4px; padding:10px 16px; font-size:14px; z-index:15; }
+  .s { position:absolute; pointer-events:none; z-index:14; background:#dc3545; color:#fff; font-size:11px; padding:4px 8px; border-radius:3px; }
 </style>
 </head>
 <body>
 
-<!-- タブバー -->
-<div id="tab-container">
-  <div id="tab1" class="game-element tab-item">📄 新しいタブ</div>
-  <div id="tab2" class="game-element tab-item">🐱 GitHub (pudrick)</div>
-  <div id="tab3" class="game-element tab-item">📺 YouTube</div>
+<div id="tab-container" style="position:absolute; top:0; left:0; width:100%; height:40px; background:#dee2e6; display:flex; align-items:flex-end; padding-left:10px;">
+  <div id="tab1" class="e t">📄 新しいタブ</div>
+  <div id="tab2" class="e t">🐱 GitHub (pudrick)</div>
+  <div id="tab3" class="e t">📺 YouTube</div>
 </div>
-
-<!-- Googleロゴ -->
-<div id="logo" class="game-element">
+<div id="logo" class="e">
   <span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span><span style="color:#4285F4">g</span><span style="color:#34A853">l</span><span style="color:#EA4335">e</span>
 </div>
-
-<!-- 検索バー -->
-<div id="search-bar-container" class="game-element">
-  <div class="search-icon">🔍</div>
-  <div id="bar-text" class="search-text">google fall</div>
-  <div class="right-icons">
-    <span style="color:#4285F4">🎙️</span>
-    <span style="color:#EA4335">📷</span>
-  </div>
-</div>
-
-<!-- ボタン -->
-<div id="btn1" class="game-element google-btn">Google 検索</div>
-<div id="btn2" class="game-element google-btn">I'm Feeling Lucky</div>
+<div id="bar" class="e">google fall</div>
+<div id="btn1" class="e b">Google 検索</div>
+<div id="btn2" class="e b">I'm Feeling Lucky</div>
 
 <script>
-  const w = window.innerWidth;
-  const h = window.innerHeight;
+  const w=window.innerWidth, h=window.innerHeight, g=0.45, shards=[];
+  let start=false, hold=false, tx=w/2, ty=h*0.42, lx=tx, ly=ty;
 
-  const objects = {
-    tab1: { el: document.getElementById('tab1'), x: 10, y: 12, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 100, height: 28 },
-    tab2: { el: document.getElementById('tab2'), x: 115, y: 12, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 130, height: 28 },
-    tab3: { el: document.getElementById('tab3'), x: 250, y: 12, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 100, height: 28 },
-    logo: { el: document.getElementById('logo'), x: w / 2 - 100, y: h * 0.22, vx: 0, vy: 0, angle: 0, va: 0, isStatic: false, width: 200, height: 75 },
-    bar:  { el: document.getElementById('search-bar-container'), x: w / 2 - 240, y: h * 0.42, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 480, height: 46 },
-    btn1: { el: document.getElementById('btn1'), x: w / 2 - 140, y: h * 0.53, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 110, height: 36 },
-    btn2: { el: document.getElementById('btn2'), x: w / 2 + 10, y: h * 0.53, vx: 0, vy: 0, angle: 0, va: 0, isStatic: true, width: 140, height: 36 }
+  const objs = {
+    tab1:{el:document.getElementById('tab1'), x:10, y:12, vx:0, vy:0, a:0, va:0, st:true, w:100, h:28, txt:"📄新タブ"},
+    tab2:{el:document.getElementById('tab2'), x:115, y:12, vx:0, vy:0, a:0, va:0, st:true, w:130, h:28, txt:"🐱GitHub"},
+    tab3:{el:document.getElementById('tab3'), x:250, y:12, vx:0, vy:0, a:0, va:0, st:true, w:100, h:28, txt:"📺YouTube"},
+    logo:{el:document.getElementById('logo'), x:w/2-100, y:h*0.22, vx:0, vy:0, a:0, va:0, st:false, w:200, h:75},
+    bar: {el:document.getElementById('bar'), x:w/2-240, y:h*0.42, vx:0, vy:0, a:0, va:0, st:true, w:480, h:46},
+    btn1:{el:document.getElementById('btn1'), x:w/2-140, y:h*0.53, vx:0, vy:0, a:0, va:0, st:true, w:110, h:36, txt:"検索"},
+    btn2:{el:document.getElementById('btn2'), x:w/2+10, y:h*0.53, vx:0, vy:0, a:0, va:0, st:true, w:140, h:36, txt:"Lucky"}
   };
 
-  for (let key in objects) {
-    const obj = objects[key];
-    obj.el.style.transform = `translate(${obj.x}px, ${obj.y}px) rotate(${obj.angle}deg)`;
-  }
-
-  let gameStarted = false;
-  const gravity = 0.4;
-
   setTimeout(() => {
-    gameStarted = true;
-    objects.bar.isStatic = false;
-    objects.bar.el.classList.add('game-active');
-    document.getElementById('bar-text').innerText = "完全無敵！ロゴを弾いてすべてを破壊せよ！";
+    start=true; objs.bar.st=false; objs.btn1.st=false; objs.btn2.st=false;
+    objs.bar.el.classList.add('act'); objs.bar.el.innerText="無敵！掴んで回せ！離すと落下！";
   }, 200);
 
-  // 📱 iPad用の最新タッチトラッキングシステム
-  let touchX = w / 2;
-  let touchY = h * 0.42;
+  function up(e) { const t=e.touches?e.touches[0]:e; tx=t.clientX; ty=t.clientY; }
+  window.addEventListener('mousedown', (e)=>{ if(Math.hypot(e.clientX-(objs.bar.x+240),e.clientY-(objs.bar.y+23))<250){hold=true; up(e);} });
+  window.addEventListener('mousemove', (e)=>{ if(hold) up(e); });
+  window.addEventListener('mouseup', ()=>hold=false);
+  document.addEventListener('touchstart', (e)=>{ if(Math.hypot(e.touches[0].clientX-(objs.bar.x+240),e.touches[0].clientY-(objs.bar.y+23))<250){hold=true; up(e);} });
+  document.addEventListener('touchmove', (e)=>{ up(e); if(hold) e.preventDefault(); }, {passive:false});
+  document.addEventListener('touchend', ()=>hold=false);
 
-  function handleTouch(e) {
-    // マウスまたは指の座標を一本化して確実に取得
-    const t = e.touches && e.touches.length > 0 ? e.touches[0] : e;
-    touchX = t.clientX;
-    touchY = t.clientY;
-  }
-
-  // PCマウス用イベント
-  window.addEventListener('mousemove', handleTouch);
-
-  // iPad/iPhoneタッチ用イベント（確実に動作させるためにdocument全体に付与）
-  document.addEventListener('touchstart', handleTouch, { passive: true });
-  document.addEventListener('touchmove', function(e) {
-    handleTouch(e);
-    e.preventDefault(); // 画面全体の不必要なガタつき・スクロールを強制停止
-  }, { passive: false });
-
-  function gameLoop() {
-    if (gameStarted) {
-      // 検索バーをタッチ位置に滑らかに追従
-      const targetX = touchX - objects.bar.width / 2;
-      const targetY = touchY - objects.bar.height / 2;
-      objects.bar.vx = (targetX - objects.bar.x) * 0.35;
-      objects.bar.vy = (targetY - objects.bar.y) * 0.35;
-      objects.bar.x += objects.bar.vx;
-      objects.bar.y += objects.bar.vy;
-
-      // ロゴの物理
-      objects.logo.vy += gravity;
-      objects.logo.x += objects.logo.vx;
-      objects.logo.y += objects.logo.vy;
-      objects.logo.angle += objects.logo.va;
-
-      // 破壊パーツの物理（地面で止まる処理）
-      for (let key in objects) {
-        const obj = objects[key];
-        if (key !== 'logo' && key !== 'bar' && !obj.isStatic) {
-          obj.vy += gravity;
-          obj.x += obj.vx;
-          obj.y += obj.vy;
-          obj.angle += obj.va;
-
-          if (obj.y > h - obj.height) {
-            obj.y = h - obj.height;
-            obj.vy = -obj.vy * 0.3;
-            obj.vx *= 0.8;
-            obj.va *= 0.8;
-          }
-        }
-      }
-    }
-
-    // ロゴの床バウンド
-    if (objects.logo.y > h - objects.logo.height) {
-      objects.logo.y = h - objects.logo.height;
-      objects.logo.vy = -objects.logo.vy * 0.7;
-      objects.logo.vx *= 0.9;
-      objects.logo.va *= 0.9;
-    }
-    // 壁バウンド
-    if (objects.logo.x < 0 || objects.logo.x > w - objects.logo.width) {
-      objects.logo.vx = -objects.logo.vx * 0.7;
-      objects.logo.x = objects.logo.x < 0 ? 0 : w - objects.logo.width;
-    }
-
-    // 💥 最強バッティング
-    if (gameStarted && checkCollision(objects.logo, objects.bar)) {
-      if (Math.abs(objects.bar.vy) > 0.5 || Math.abs(objects.bar.vx) > 0.5) {
-        objects.logo.vy = objects.bar.vy * 1.5 - 4; 
-        objects.logo.vx = objects.bar.vx * 1.3 + (Math.random() - 0.5) * 5;
-        objects.logo.va = objects.logo.vx * 0.6;
+  function loop() {
+    if (start) {
+      if (hold) {
+        objs.bar.vx=(tx-240-objs.bar.x)*0.4; objs.bar.vy=(ty-23-objs.bar.y)*0.4;
+        objs.bar.va=(tx-lx)*0.4; objs.bar.x+=objs.bar.vx; objs.bar.y+=objs.bar.vy; objs.bar.a+=objs.bar.va;
       } else {
-        objects.logo.y = objects.bar.y - objects.logo.height - 1;
-        objects.logo.vy = -Math.abs(objects.logo.vy) * 0.5 - 2;
+        objs.bar.vy+=g; objs.bar.vx*=0.98; objs.bar.va*=0.98;
+        objs.bar.x+=objs.bar.vx; objs.bar.y+=objs.bar.vy; objs.bar.a+=objs.bar.va;
+        if(objs.bar.y>h-46){ objs.bar.y=h-46; objs.bar.vy*=-0.4; objs.bar.vx*=0.7; objs.bar.va=(Math.random()-0.5)*5; }
       }
+      objs.logo.vy+=g; objs.logo.x+=objs.logo.vx; objs.logo.y+=objs.logo.vy; objs.logo.a+=objs.logo.va;
+      ['btn1','btn2'].forEach(k=>{ const o=objs[k]; if(!o.st){ o.vy+=g; o.x+=o.vx; o.y+=o.vy; o.a+=o.va; if(o.y>h-36){o.y=h-36; o.vy*=-0.3;} } });
+      for(let i=shards.length-1; i>=0; i--){ const s=shards[i]; s.vy+=g; s.x+=s.vx; s.y+=s.vy; s.a+=s.va; s.el.style.transform=`translate(${s.x}px,${s.y}px) rotate(${s.a}deg)`; if(s.y>h-20){s.y=h-20; s.vy*=-0.3;} }
     }
-
-    // 💥 全パーツの破壊判定
-    ['tab1', 'tab2', 'tab3', 'btn1', 'btn2'].forEach(key => {
-      const target = objects[key];
-      if (target.isStatic && checkCollision(objects.logo, target)) {
-        target.isStatic = false;
-        target.el.classList.add('broken');
-        
-        if(key.startsWith('tab')) {
-          target.el.innerText = "💥 撃破";
-        } else if(key === 'btn1') {
-          target.el.innerText = "💥 崩壊";
-        } else {
-          target.el.innerText = "💥 Lucky!!";
+    if(objs.logo.y>h-75){ objs.logo.y=h-75; objs.logo.vy*=-0.65; objs.logo.vx*=0.9; objs.logo.va*=0.9; }
+    if(objs.logo.x<0||objs.logo.x>w-200){ objs.logo.vx*=-0.7; objs.logo.x=objs.logo.x<0?0:w-200; }
+    if(start && hit(objs.logo, objs.bar)){ objs.logo.vy=objs.bar.vy*1.5-Math.abs(objs.bar.va)-4; objs.logo.vx=objs.bar.vx*1.3+objs.bar.va*2+(Math.random()-0.5)*6; objs.logo.va=objs.logo.vx*0.6+objs.bar.va; }
+    ['tab1','tab2','tab3','btn1','btn2'].forEach(k=>{
+      const t=objs[k]; if(t.st && hit(objs.logo, t)){
+        t.st=false; t.el.style.display='none';
+        for(let i=0; i<3; i++){
+          const sEl=document.createElement('div'); sEl.className='s'; sEl.innerText=(t.txt||"💥").substring(i,i+2)||"💥"; document.body.appendChild(sEl);
+          shards.push({ el:sEl, x:t.x+(i*30), y:t.y, vx:objs.logo.vx*0.5+(Math.random()-0.5)*10, vy:objs.logo.vy*0.4-Math.random()*5-2, a:Math.random()*360, va:(Math.random()-0.5)*20 });
         }
-
-        target.vy = objects.logo.vy * 0.4 + 2;
-        target.vx = objects.logo.vx * 0.4 + (Math.random() - 0.5) * 4;
-        target.va = (Math.random() - 0.5) * 12;
-        objects.logo.vy = -objects.logo.vy * 0.6;
+        objs.logo.vy*=-0.6;
       }
     });
-
-    // 天井リスポーン
-    if (objects.logo.y < -300) {
-      objects.logo.y = -80;
-      objects.logo.x = Math.random() * (w - objects.logo.width);
-      objects.logo.vy = 5;
-      objects.logo.vx = (Math.random() - 0.5) * 4;
-    }
-
-    for (let key in objects) {
-      const obj = objects[key];
-      obj.el.style.transform = `translate(${obj.x}px, ${obj.y}px) rotate(${obj.angle}deg)`;
-    }
-
-    requestAnimationFrame(gameLoop);
+    if(objs.logo.y<-300){ objs.logo.y=-80; objs.logo.x=Math.random()*(w-200); objs.logo.vy=5; objs.logo.vx=(Math.random()-0.5)*4; }
+    for(let k in objs){ const o=objs[k]; if(o.st||k==='logo'||k==='bar'||(k.startsWith('btn')&&!o.st)) o.el.style.transform=`translate(${o.x}px,${o.y}px) rotate(${o.a}deg)`; }
+    lx=tx; ly=ty; requestAnimationFrame(loop);
   }
-
-  function checkCollision(obj1, obj2) {
-    return (
-      obj1.x < obj2.x + obj2.width &&
-      obj1.x + obj1.width > obj2.x &&
-      obj1.y < obj2.y + obj2.height &&
-      obj1.y + obj1.height > obj2.y
-    );
-  }
-
-  gameLoop();
+  function hit(o1,o2){ return o1.x<o2.x+o2.w && o1.x+o1.w>o2.x && o1.y<o2.y+o2.h && o1.y+o1.h>o2.y; }
+  loop();
 </script>
 </body>
 </html>
