@@ -6,7 +6,6 @@
 <title>Google</title>
 <style>
   body { margin:0; overflow:hidden; background:#fff; font-family:sans-serif; user-select:none; touch-action:none; }
-  /* ⚡ 画面全体を揺らすためのコンテナ */
   #stage { position:absolute; width:100%; height:100%; left:0; top:0; }
   .e { position:absolute; left:0; top:0; will-change:transform; box-sizing:border-box; white-space:nowrap; }
   .t { background:#e9ecef; border:1px solid #c1c9d2; border-bottom:none; border-radius:8px 8px 0 0; padding:8px 20px; font-size:12px; }
@@ -15,7 +14,6 @@
   #bar.act { border:2px solid #34A853; box-shadow:0 4px 10px rgba(52,168,83,0.3); cursor:move; }
   .b { background:#f8f9fa; border:1px solid #f8f9fa; border-radius:4px; padding:10px 16px; font-size:14px; z-index:15; }
   .w { background:#fff; border:1px solid #dfe1e5; border-radius:8px; padding:15px; font-size:14px; box-shadow:0 1px 6px rgba(0,0,0,0.1); z-index:5; }
-  /* 💥 破片のサイズをランダムにしてリアルに */
   .s { position:absolute; pointer-events:none; z-index:14; background:#dc3545; color:#fff; font-weight:bold; border-radius:4px; border:1px solid #b21f2d; box-shadow:0 2px 5px rgba(0,0,0,0.2); }
 </style>
 </head>
@@ -36,20 +34,18 @@
 
   <div id="w1" class="e w">📰 トレンド：インゲン菜が世界中で大流行</div>
   <div id="w2" class="e w">🌤️ お天気：千葉市 降水確率 0.2%</div>
-  <div id="w3" class="e w">📦 Amazon：注文したブーメランが発送されました</div>
+  <div id="w3" class="e w">📦 Amazon：注文したブーマイランが発送されました</div>
   <div id="w4" class="e w">🎮 ゲーム：pudrickが破壊神に覚醒</div>
 </div>
 
 <script>
   const w=window.innerWidth, h=window.innerHeight, g=0.45, shards=[];
-  let start=false, hold=false, tx=w/2, ty=h*0.42, lx=tx, ly=ty, ox=0, oy=0;
-  let shake=0; // ⚡ 画面の揺れ強度
+  let start=false, hold=false, tx=w/2, ty=h*0.42, lx=tx, ly=ty, ox=0, oy=0, shake=0;
   const stage = document.getElementById('stage');
 
   function playSound(type) {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (type === 'crash') {
-      // 🔊 破壊音の低音を強化してズシンと響かせる
       const bufSize = ctx.sampleRate * 0.5, buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate), data = buffer.getChannelData(0);
       for (let i = 0; i < bufSize; i++) { data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.12)); }
       const noise = ctx.createBufferSource(); noise.buffer = buffer;
@@ -85,15 +81,21 @@
     objs.bar.el.classList.add('act'); objs.bar.el.innerText="音量注意！全てを粉々に打ち砕け！";
   }, 200);
 
-  function up(e) { const t=e.touches&&e.touches.length>0?e.touches:e; tx=t.clientX; ty=t.clientY; }
+  function up(e) { const t=e.touches&&e.touches.length>0?e.touches[0]:e; tx=t.clientX; ty=t.clientY; }
+  
   function startHold(clientX, clientY, event) {
     const d = Math.hypot(clientX-(objs.bar.x+240), clientY-(objs.bar.y+23));
-    if (d < 300) { hold=true; ox = clientX - objs.bar.x; oy = clientY - objs.bar.y; if(event.touches&&event.touches.length>0) { tx=event.touches.clientX; ty=event.touches.clientY; } else { tx=clientX; ty=clientY; } lx=tx; ly=ty; }
+    if (d < 300) { 
+      hold=true; ox = clientX - objs.bar.x; oy = clientY - objs.bar.y;
+      const t=event.touches&&event.touches.length>0?event.touches[0]:event; tx=t.clientX; ty=t.clientY; lx=tx; ly=ty; 
+    }
   }
+
   window.addEventListener('mousedown', (e)=>startHold(e.clientX, e.clientY, e));
   window.addEventListener('mousemove', (e)=>{ if(hold) up(e); });
   window.addEventListener('mouseup', ()=>hold=false);
-  document.addEventListener('touchstart', (e)=>{ if(e.touches&&e.touches.length>0) startHold(e.touches.clientX, e.touches.clientY, e); }, {passive:true});
+  
+  document.addEventListener('touchstart', (e)=>{ if(e.touches&&e.touches.length>0) startHold(e.touches[0].clientX, e.touches[0].clientY, e); }, {passive:true});
   document.addEventListener('touchmove', (e)=>{ up(e); if(hold) e.preventDefault(); }, {passive:false});
   document.addEventListener('touchend', ()=>hold=false);
 
@@ -118,20 +120,15 @@
     for(let k in objs){
       const t=objs[k]; if(k!=='logo' && k!=='bar' && t.st && hit(objs.logo, t)){
         t.st=false; t.el.style.display='none';
-        playSound('crash'); 
-        shake = 15; // ⚡ 画面の揺れをセット！
-        
-        // 💥 破片の数を10個に増量！
+        playSound('crash'); shake = 15; 
         const text = t.txt || "💥";
         for(let i=0; i<10; i++){
           const sEl=document.createElement('div'); sEl.className='s';
-          sEl.innerText=text.charAt(i % text.length); // 文字を散りばめる
-          // 破片の大きさをランダムにしてさらにリアルに
+          sEl.innerText=text.charAt(i % text.length);
           sEl.style.padding = `${3+Math.random()*4}px ${6+Math.random()*6}px`;
           sEl.style.fontSize = `${10+Math.random()*8}px`;
           stage.appendChild(sEl);
-
-          shards.push({ el:sEl, x:t.x + (Math.random()*t.w), y:t.y + (Math.random()*t.h), vx:objs.logo.vx*0.6+(Math.random()-0.5)*16, vy:objs.logo.vy*0.4-Math.random()*8-3, a:Math.random()*360, va:(Math.random()-0.5)*40 });
+          shards.push({ el:sEl, x:t.x+(Math.random()*t.w), y:t.y+(Math.random()*t.h), vx:objs.logo.vx*0.6+(Math.random()-0.5)*16, vy:objs.logo.vy*0.4-Math.random()*8-3, a:Math.random()*360, va:(Math.random()-0.5)*40 });
         }
         objs.logo.vy*=-0.6;
       }
@@ -139,15 +136,11 @@
     if(objs.logo.y<-300){ objs.logo.y=-80; objs.logo.x=Math.random()*(w-200); objs.logo.vy=5; objs.logo.vx=(Math.random()-0.5)*4; }
     for(let k in objs){ const o=objs[k]; o.el.style.transform=`translate(${o.x}px,${o.y}px) rotate(${o.a}deg)`; }
     
-    // ⚡ 画面シェイクの計算と適用
     if (shake > 0) {
-      const sx = (Math.random() - 0.5) * shake;
-      const sy = (Math.random() - 0.5) * shake;
+      const sx = (Math.random() - 0.5) * shake, sy = (Math.random() - 0.5) * shake;
       stage.style.transform = `translate(${sx}px, ${sy}px)`;
-      shake *= 0.9; // 徐々に揺れを収束させる
-      if(shake < 0.5) { shake = 0; stage.style.transform = ''; }
+      shake *= 0.9; if(shake < 0.5) { shake = 0; stage.style.transform = ''; }
     }
-
     lx=tx; ly=ty; requestAnimationFrame(loop);
   }
   function hit(o1,o2){ return o1.x<o2.x+o2.w && o1.x+o1.w>o2.x && o1.y<o2.y+o2.h && o1.y+o1.h>o2.y; }
